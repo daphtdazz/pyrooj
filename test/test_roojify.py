@@ -3,7 +3,7 @@ import json
 from jsonschema import ValidationError
 from pytest import raises
 
-from rooj import Roojable
+from rooj import Roojable, UnroojableObjectException
 
 
 class ARoojable(Roojable):
@@ -13,11 +13,23 @@ class ARoojable(Roojable):
 
 def test_roojify_simplest_class():
     ar = ARoojable()
-    assert json.loads(ar.to_rooj()) == {
-        "_rooj_class": "ARoojable"
+    ar.a = 5
+    ar.b = 'This has a " double quote in it'
+    rooj = ar.to_rooj()
+    assert json.loads(rooj) == {
+        "_rooj_class": "ARoojable",
+        "a": 5,
+        "b": 'This has a " double quote in it'
     }
 
-    assert Roojable.from_rooj(ar.to_rooj()) == ar
+    ar2 = Roojable.from_rooj(rooj)
+    assert ar2.a == ar.a
+    assert ar2 == ar
+
+
+def test_rooj_represent_unroojable():
+    with raises(UnroojableObjectException):
+        Roojable.rooj_represent_object(test_rooj_represent_unroojable)
 
 
 def test_bad_rooj():

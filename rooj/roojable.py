@@ -2,8 +2,10 @@
 from collections import namedtuple
 import json
 from jsonschema import validate
+from numbers import Number
 
 from .roojable_type import RoojableType
+from .exceptions import UnroojableObjectException
 
 
 class Roojable(metaclass=RoojableType):  # noqa
@@ -41,9 +43,30 @@ class Roojable(metaclass=RoojableType):  # noqa
             setattr(inst, prop, value)
         return inst
 
+    @classmethod
+    def rooj_represent_object(cls, obj, none_on_unroojable=False):
+        if isinstance(obj, str) or isinstance(obj, Number):
+            return obj
+
+        if none_on_unroojable:
+            return None
+
+        raise UnroojableObjectException(obj)
+
     def to_rooj(self):
 
         self_repr = {}
-        self_repr[self.attr_names.class_] = type(self).__name__
+        self_repr['_rooj_class'] = type(self).__name__
+
+        for attr in dir(self):
+            if attr.startswith('_'):
+                continue
+
+            rooj = self.rooj_represent_object(
+                getattr(self, attr), none_on_unroojable=True
+            )
+            if rooj is None:
+                continue
+            self_repr[attr] = rooj
 
         return json.dumps(self_repr)
