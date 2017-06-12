@@ -1,5 +1,9 @@
-RESTful Object-Oriented JSON (rooj, like huge)
-==============================================
+RESTful Object-Oriented JSON (rooj, like huge) |build status|
+=============================================================
+
+.. |build status| image:: https://travis-ci.org/daphtdazz/pyrooj.svg?branch=master
+    :alt: pyrooj travis build status
+    :target: https://travis-ci.org/daphtdazz/pyrooj
 
 What is it
 ----------
